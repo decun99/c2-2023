@@ -1,32 +1,62 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
-import GeoData from './components/GeoData';
-import Input from './components/Input';
 
 const App = () => {
   const [ip, setIp] = useState('');
+  const [buttonDisabled, setButtonDisabled] = useState(true);
+  const [error, setError] = useState('');
   const [geoData, setGeoData] = useState(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(`https://ipinfo.io/${ip}/geo`);
-        setGeoData(response.data);
-      } catch (error) {
-        console.error('Error fetching geo data:', error);
-      }
-    };
+  const handleInputChange = (event) => {
+    const { value } = event.target;
+    setIp(value);
+    setButtonDisabled(!isValidIp(value));
+    setError(isValidIp(value) ? '' : 'Formato de IP inválido');
+  };
 
-    if (ip) {
-      fetchData();
+  const isValidIp = (ip) => {
+    const pattern = /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+    return pattern.test(ip);
+  };
+
+  const handleSearch = async () => {
+    try {
+      const response = await axios.get(`https://ipinfo.io/${ip}/geo`);
+      if (response.status === 200) {
+        setGeoData(response.data);
+        setError('');
+      } else {
+        setError('Error al consultar la información de la IP.');
+      }
+    } catch (error) {
+      setError('Error al consultar la información de la IP.');
     }
-  }, [ip]);
+  };
 
   return (
-    <div className="App">
+    <div>
       <h1>CONTROL 2 TEL-335</h1>
-      <Input onIpSubmit={setIp} />
-      <GeoData ip={ip} geoData={geoData} />
+      <input type="text" value={ip} onChange={handleInputChange} />
+      {error && <p>{error}</p>}
+      <button disabled={buttonDisabled} onClick={handleSearch}>
+        Buscar
+      </button>
+      {geoData && (
+        <div>
+          <h2>Información de la IP</h2>
+          <ul>
+            <li>IP: {geoData.ip}</li>
+            <li>Hostname: {geoData.hostname}</li>
+            <li>City: {geoData.city}</li>
+            <li>Region: {geoData.region}</li>
+            <li>Country: {geoData.country}</li>
+            <li>Loc: {geoData.loc}</li>
+            <li>Org: {geoData.org}</li>
+            <li>Postal: {geoData.postal}</li>
+            <li>Timezone: {geoData.timezone}</li>
+          </ul>
+        </div>
+      )}
     </div>
   );
 };

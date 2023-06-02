@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import dummyData from './dummyData.json';
 
 const GeoData = ({ ip }) => {
   const [geoData, setGeoData] = useState(null);
@@ -7,8 +7,9 @@ const GeoData = ({ ip }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`https://ipinfo.io/${ip}/geo`);
-        setGeoData(response.data);
+        // Simulate API call delay
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        setGeoData(dummyData);
       } catch (error) {
         console.error('Error fetching geo data:', error);
       }
