@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import './style.css'; // Importar el archivo de estilos
 
 const App = () => {
   const [ip, setIp] = useState('');
   const [buttonDisabled, setButtonDisabled] = useState(true);
   const [error, setError] = useState('');
   const [geoData, setGeoData] = useState(null);
+  const [saveMessage, setSaveMessage] = useState('');
 
   const handleInputChange = (event) => {
     const { value } = event.target;
@@ -33,26 +35,45 @@ const App = () => {
     }
 
     const dummyData = {
-      ip: "161.185.160.93",
-      city: "New York City",
-      region: "New York",
-      country: "US",
-      loc: "40.7143,-74.0060",
-      org: "AS22252 The City of New York",
-      postal: "10004",
-      timezone: "America/New_York",
-      readme: "https://ipinfo.io/missingauth"
+      ip: '161.185.160.93',
+      city: 'New York City',
+      region: 'New York',
+      country: 'US',
+      loc: '40.7143,-74.0060',
+      org: 'AS22252 The City of New York',
+      postal: '10004',
+      timezone: 'America/New_York',
+      readme: 'https://ipinfo.io/missingauth'
     };
 
     setGeoData(dummyData);
     setError('');
   };
 
+  const handleSave = async () => {
+    try {
+      const saveResponse = await axios.post('https://jsonplaceholder.typicode.com/posts', {
+        ip: geoData.ip,
+        city: geoData.city,
+        region: geoData.region,
+        country: geoData.country
+      });
+
+      if (saveResponse.status === 201) {
+        setSaveMessage('Los datos se guardaron correctamente.');
+      } else {
+        setSaveMessage('Error al guardar los datos. Por favor, inténtalo nuevamente.');
+      }
+    } catch (error) {
+      setSaveMessage('Error al guardar los datos. Por favor, inténtalo nuevamente.');
+    }
+  };
+
   return (
-    <div>
+    <div className="container"> {/* Aplicar la clase "container" al contenedor principal */}
       <h1>CONTROL 2 TEL-335</h1>
       <input type="text" value={ip} onChange={handleInputChange} />
-      {error && <p>{error}</p>}
+      {error && <p className="error">{error}</p>}
       <button disabled={buttonDisabled} onClick={handleSearch}>
         Buscar
       </button>
@@ -70,6 +91,8 @@ const App = () => {
             <li>Postal: {geoData.postal}</li>
             <li>Timezone: {geoData.timezone}</li>
           </ul>
+          <button onClick={handleSave}>Guardar</button>
+          {saveMessage && <p className="success">{saveMessage}</p>}
         </div>
       )}
     </div>
