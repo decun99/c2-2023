@@ -1,6 +1,13 @@
-import React, { useState } from 'react';
+/// Farid Diaz - 201830024-1
+/// En este archivo se encuentra el código del control 2 de la asignatura TEL-335
+/// Dado que habia un error 429 relacionado con CORS se utilizo un dummyobject para simular la respuesta de la API
+/// Ademas de esto igual se dejo activo el error 429 para que se pueda ver el error en la consola, como tambien asi sirve 
+/// para que se pueda entender el caso de uso pedido
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import './style.css'; // Importar el archivo de estilos
+import { MapContainer, TileLayer, Marker } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import './style.css';
 
 const App = () => {
   const [ip, setIp] = useState('');
@@ -8,6 +15,22 @@ const App = () => {
   const [error, setError] = useState('');
   const [geoData, setGeoData] = useState(null);
   const [saveMessage, setSaveMessage] = useState('');
+
+  useEffect(() => {
+    const dummyData = {
+      ip: '161.185.160.93',
+      city: 'New York City',
+      region: 'New York',
+      country: 'US',
+      loc: '40.7143,-74.0060',
+      org: 'AS22252 The City of New York',
+      postal: '10004',
+      timezone: 'America/New_York',
+      readme: 'https://ipinfo.io/missingauth'
+    };
+
+    setGeoData(dummyData);
+  }, []);
 
   const handleInputChange = (event) => {
     const { value } = event.target;
@@ -33,21 +56,6 @@ const App = () => {
     } catch (error) {
       setError('Error al consultar la información de la IP.');
     }
-
-    const dummyData = {
-      ip: '161.185.160.93',
-      city: 'New York City',
-      region: 'New York',
-      country: 'US',
-      loc: '40.7143,-74.0060',
-      org: 'AS22252 The City of New York',
-      postal: '10004',
-      timezone: 'America/New_York',
-      readme: 'https://ipinfo.io/missingauth'
-    };
-
-    setGeoData(dummyData);
-    setError('');
   };
 
   const handleSave = async () => {
@@ -70,7 +78,7 @@ const App = () => {
   };
 
   return (
-    <div className="container"> {/* Aplicar la clase "container" al contenedor principal */}
+    <div className="container">
       <h1>CONTROL 2 TEL-335</h1>
       <input type="text" value={ip} onChange={handleInputChange} />
       {error && <p className="error">{error}</p>}
@@ -93,6 +101,10 @@ const App = () => {
           </ul>
           <button onClick={handleSave}>Guardar</button>
           {saveMessage && <p className="success">{saveMessage}</p>}
+          <MapContainer center={geoData.loc.split(',')} zoom={13} style={{ height: '400px' }}>
+            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            <Marker position={geoData.loc.split(',')} />
+          </MapContainer>
         </div>
       )}
     </div>
